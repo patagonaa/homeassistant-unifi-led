@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  app:
+    restart: unless-stopped
+    image: homeassistant-unifi-led
+    build: .
+    volumes:
+      - "./src/HomeAssistantUnifiLed/config.json:/app/config.json"

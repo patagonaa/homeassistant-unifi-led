@@ -1,0 +1,14 @@
+﻿{
+    "Mqtt": {
+        "Host": "mqtt.example.com",
+        "Username": "example",
+        "Password": "secret"
+    },
+    "Devices": [
+        {
+            "Host": "192.168.178.12",
+            "Username": "root",
+            "Password": "secret"
+        }
+    ]
+}
