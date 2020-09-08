@@ -45,6 +45,11 @@ namespace HomeAssistantUnifiLed
             var filterBuilder = new MqttTopicFilterBuilder();
             foreach (var device in devices)
             {
+                var deviceConfig = device.Config;
+                device.SshClient = new SshClient(deviceConfig.Host, deviceConfig.Port, deviceConfig.Username, deviceConfig.Password);
+                device.SshClient.Connect();
+                Console.WriteLine($"Connected to {deviceConfig.Host}");
+
                 await mqttClient.SubscribeAsync($"homeassistant/light/{device.Name}/set");
                 await mqttClient.SubscribeAsync($"homeassistant/light/{device.Name}/effect");
             }
@@ -69,13 +74,12 @@ namespace HomeAssistantUnifiLed
                     },
                     EffectTopic = "~/effect",
                     AvailabilityTopic = "homeassistantunifiled/bridge/state",
+                    Retain = true
                 };
 
                 var configJson = JsonConvert.SerializeObject(lightConfig);
 
                 await mqttClient.PublishAsync($"homeassistant/light/{device.Name}/config", configJson, MqttQualityOfServiceLevel.ExactlyOnce);
-                var deviceConfig = device.Config;
-                device.SshClient = new SshClient(deviceConfig.Host, deviceConfig.Port, deviceConfig.Username, deviceConfig.Password);
             }
 
             while (true)

@@ -18,6 +18,8 @@ namespace HomeAssistantUnifiLed
         [JsonProperty("effect_command_topic")]
         public string EffectTopic { get; set; }
         [JsonProperty("availability_topic")]
-        public string AvailabilityTopic { get; internal set; }
+        public string AvailabilityTopic { get; set; }
+        [JsonProperty("retain")]
+        public bool Retain { get; set; }
     }
 }
