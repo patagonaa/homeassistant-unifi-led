@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,6 +36,7 @@ namespace HomeAssistantUnifiLed
                 .WithClientOptions(new MqttClientOptionsBuilder()
                     .WithTcpServer(mqttConfig.Host)
                     .WithCredentials(mqttConfig.Username, mqttConfig.Password)
+                    .WithWillMessage(new MqttApplicationMessage { Topic = "homeassistantunifiled/bridge/state", Payload = Encoding.UTF8.GetBytes("offline")})
                     .Build())
                 .Build();
 
@@ -50,6 +52,8 @@ namespace HomeAssistantUnifiLed
             mqttClient.UseApplicationMessageReceivedHandler(MessageReceived);
             await mqttClient.StartAsync(options);
 
+            await mqttClient.PublishAsync($"homeassistantunifiled/bridge/state", "online", MqttQualityOfServiceLevel.ExactlyOnce, true);
+
             foreach (var device in devices)
             {
                 var lightConfig = new HomeAssistantDiscovery()
@@ -63,7 +67,8 @@ namespace HomeAssistantUnifiLed
                         "white",
                         "blue"
                     },
-                    EffectTopic = "~/effect"
+                    EffectTopic = "~/effect",
+                    AvailabilityTopic = "homeassistantunifiled/bridge/state",
                 };
 
                 var configJson = JsonConvert.SerializeObject(lightConfig);
