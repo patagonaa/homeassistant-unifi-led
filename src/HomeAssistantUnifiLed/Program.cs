@@ -79,7 +79,7 @@ namespace HomeAssistantUnifiLed
 
                 var configJson = JsonConvert.SerializeObject(lightConfig);
 
-                await mqttClient.PublishAsync($"homeassistant/light/{device.Name}/config", configJson, MqttQualityOfServiceLevel.ExactlyOnce);
+                await mqttClient.PublishAsync($"homeassistant/light/{device.Name}/config", configJson, MqttQualityOfServiceLevel.ExactlyOnce, true);
             }
 
             while (true)
