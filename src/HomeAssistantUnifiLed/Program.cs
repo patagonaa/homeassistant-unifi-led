@@ -82,6 +82,8 @@ namespace HomeAssistantUnifiLed
                 await mqttClient.PublishAsync($"homeassistant/light/{device.Name}/config", configJson, MqttQualityOfServiceLevel.ExactlyOnce, true);
             }
 
+            int i = 0;
+
             while (true)
             {
                 foreach (var device in _devices)
@@ -92,8 +94,13 @@ namespace HomeAssistantUnifiLed
                         client.Connect();
                         Console.WriteLine($"Connected to {client.ConnectionInfo.Host}");
                     }
+                    if (i % 6 == 0)
+                    {
+                        SetDeviceState(device);
+                    }
                 }
                 Thread.Sleep(10000);
+                i++;
             }
         }
 
@@ -118,6 +125,13 @@ namespace HomeAssistantUnifiLed
                     break;
             }
 
+            Console.WriteLine($"AP {device.Config.Host} Color {device.Effect} {(device.State ? "ON" : "OFF")}");
+
+            SetDeviceState(device);
+        }
+
+        private static void SetDeviceState(UnifiDevice device)
+        {
             var client = device.SshClient;
 
             var valueToSend = 0;
@@ -132,8 +146,6 @@ namespace HomeAssistantUnifiLed
                     valueToSend |= 2;
                 }
             }
-
-            Console.WriteLine($"AP {client.ConnectionInfo.Host} Color {valueToSend}");
 
             if (client.IsConnected)
             {
