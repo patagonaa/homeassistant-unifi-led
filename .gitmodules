@@ -1,0 +1,3 @@
+[submodule "src/dotnet-homeassistant-mqtt-discovery"]
+	path = src/dotnet-homeassistant-mqtt-discovery
+	url = https://github.com/patagonaa/dotnet-homeassistant-mqtt-discovery.git
