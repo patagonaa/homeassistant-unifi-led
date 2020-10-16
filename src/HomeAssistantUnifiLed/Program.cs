@@ -66,6 +66,15 @@ namespace HomeAssistantUnifiLed
                 {
                     UniqueId = device.Name,
                     Name = device.Name,
+                    Device = new HomeAssistantDevice
+                    {
+                        Name = device.Name,
+                        Identifiers = new List<string>
+                        {
+                            device.Name,
+                            device.Config.Host
+                        }
+                    },
                     TopicBase = $"homeassistant/light/{device.Name}",
                     CommandTopic = "~/set",
                     EffectList = new List<string>
