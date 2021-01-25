@@ -6,7 +6,13 @@
     },
     "Devices": [
         {
+            "Name": "unifi-ap-1", // using IP + name
             "Host": "192.168.178.12",
+            "Username": "root",
+            "Password": "secret"
+        }
+        {
+            "Host": "unifi-ap-2", // using hostname
             "Username": "root",
             "Password": "secret"
         }
