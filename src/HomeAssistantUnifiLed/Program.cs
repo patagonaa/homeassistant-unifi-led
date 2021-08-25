@@ -159,7 +159,9 @@ namespace HomeAssistantUnifiLed
 
             if (client.IsConnected)
             {
-                using (var sc = client.CreateCommand($"echo '{valueToSend.ToString(CultureInfo.InvariantCulture)}' > /proc/gpio/led_pattern"))
+                using (var sc = client.CreateCommand("sed -i '/mgmt.led_pattern_override/d' /var/etc/persistent/cfg/mgmt && " +
+                    $"echo 'mgmt.led_pattern_override={valueToSend.ToString(CultureInfo.InvariantCulture)}' >> /var/etc/persistent/cfg/mgmt && " +
+                    $"echo '{valueToSend.ToString(CultureInfo.InvariantCulture)}' > /proc/gpio/led_pattern"))
                 {
                     sc.Execute();
                 }
