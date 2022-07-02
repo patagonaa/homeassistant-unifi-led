@@ -1,7 +1,7 @@
 ﻿using HomeAssistantDiscoveryHelper;
 using Microsoft.Extensions.Configuration;
 using MQTTnet;
-using MQTTnet.Client.Options;
+using MQTTnet.Client;
 using MQTTnet.Extensions.ManagedClient;
 using MQTTnet.Protocol;
 using Newtonsoft.Json;
@@ -29,7 +29,7 @@ namespace HomeAssistantUnifiLed
             var config = configRoot.Get<Configuration>();
             var mqttConfig = config.Mqtt;
 
-            var devices = config.Devices.Select(x => new UnifiDevice { Config = x, Name = x.Name ?? x.Host, Effect = "white", State = false}).ToList();
+            var devices = config.Devices.Select(x => new UnifiDevice { Config = x, Name = x.Name ?? x.Host, Effect = "white", State = false }).ToList();
             _devices = devices;
 
             var options = new ManagedMqttClientOptionsBuilder()
@@ -37,7 +37,9 @@ namespace HomeAssistantUnifiLed
                 .WithClientOptions(new MqttClientOptionsBuilder()
                     .WithTcpServer(mqttConfig.Host)
                     .WithCredentials(mqttConfig.Username, mqttConfig.Password)
-                    .WithWillMessage(new MqttApplicationMessage { Topic = "homeassistantunifiled/bridge/state", Payload = Encoding.UTF8.GetBytes("offline")})
+                    .WithWillTopic("homeassistantunifiled/bridge/state")
+                    .WithWillPayload(Encoding.UTF8.GetBytes("offline"))
+                    .WithWillRetain(true)
                     .Build())
                 .Build();
 
@@ -55,10 +57,10 @@ namespace HomeAssistantUnifiLed
                 await mqttClient.SubscribeAsync($"homeassistant/light/{device.Name}/effect");
             }
 
-            mqttClient.UseApplicationMessageReceivedHandler(MessageReceived);
+            mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
             await mqttClient.StartAsync(options);
 
-            await mqttClient.PublishAsync($"homeassistantunifiled/bridge/state", "online", MqttQualityOfServiceLevel.ExactlyOnce, true);
+            await mqttClient.EnqueueAsync($"homeassistantunifiled/bridge/state", "online", MqttQualityOfServiceLevel.ExactlyOnce, true);
 
             foreach (var device in devices)
             {
@@ -89,7 +91,7 @@ namespace HomeAssistantUnifiLed
 
                 var configJson = JsonConvert.SerializeObject(lightConfig);
 
-                await mqttClient.PublishAsync($"homeassistant/light/{device.Name}/config", configJson, MqttQualityOfServiceLevel.ExactlyOnce, true);
+                await mqttClient.EnqueueAsync($"homeassistant/light/{device.Name}/config", configJson, MqttQualityOfServiceLevel.ExactlyOnce, true);
             }
 
             int i = 0;
@@ -114,7 +116,7 @@ namespace HomeAssistantUnifiLed
             }
         }
 
-        private static void MessageReceived(MqttApplicationMessageReceivedEventArgs messageEvent)
+        private static Task MessageReceived(MqttApplicationMessageReceivedEventArgs messageEvent)
         {
             var message = messageEvent.ApplicationMessage;
             var splitTopic = message.Topic.Split('/');
@@ -138,6 +140,7 @@ namespace HomeAssistantUnifiLed
             Console.WriteLine($"AP {device.Config.Host} Color {device.Effect} {(device.State ? "ON" : "OFF")}");
 
             SetDeviceState(device);
+            return Task.CompletedTask;
         }
 
         private static void SetDeviceState(UnifiDevice device)
