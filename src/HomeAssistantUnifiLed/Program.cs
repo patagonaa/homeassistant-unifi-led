@@ -67,7 +67,7 @@ namespace HomeAssistantUnifiLed
                 var lightConfig = new HomeAssistantDiscovery()
                 {
                     UniqueId = device.Name,
-                    Name = device.Name,
+                    Name = null,
                     Device = new HomeAssistantDevice
                     {
                         Name = device.Name,
