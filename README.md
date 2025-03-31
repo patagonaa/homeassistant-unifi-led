@@ -30,6 +30,6 @@ cp src/HomeAssistantUnifiLed/config.example.json src/HomeAssistantUnifiLed/confi
 then edit `src/HomeAssistantUnifiLed/config.json` to add your MQTT server and access points (with SSH credentials).
 then start the app using
 ```
-docker-compose up -d --build
+docker compose up -d --build
 ```
 but keeping the config file there probably isn't a good idea
