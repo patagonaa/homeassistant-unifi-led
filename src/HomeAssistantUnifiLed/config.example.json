@@ -10,7 +10,7 @@
             "Host": "192.168.178.12",
             "Username": "root",
             "Password": "secret"
-        }
+        },
         {
             "Host": "unifi-ap-2", // using hostname
             "Username": "root",
